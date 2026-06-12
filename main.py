@@ -9,6 +9,7 @@ from azure.ai.projects.aio import AIProjectClient
 from azure.ai.projects.models import AgentDetails, AgentVersionDetails, AgentVersionStatus
 from azure.core.exceptions import HttpResponseError
 from azure.identity.aio import AzureCliCredential
+from client_memory import get_client_profile, update_client_profile
 from dotenv import load_dotenv
 
 
@@ -147,6 +148,79 @@ async def create_conversation_session(agent: FoundryAgent) -> AgentSession:
             raise
 
 
+def format_profile_context(profile: dict[str, object]) -> str:
+    if not profile.get("found"):
+        return (
+            "No stored client memory exists yet for this client. "
+            "Start fresh, but note any scoping patterns worth saving later."
+        )
+
+    return (
+        "Known client profile:\n"
+        f"- Client name: {profile.get('client_name', 'Unknown')}\n"
+        f"- Past projects: {', '.join(profile.get('past_projects', [])) or 'None'}\n"
+        f"- Observed patterns: {', '.join(profile.get('observed_patterns', [])) or 'None'}\n"
+        f"- Preferred tools: {', '.join(profile.get('preferred_tools', [])) or 'None'}\n"
+        f"- Avoided tools: {', '.join(profile.get('avoided_tools', [])) or 'None'}\n"
+        "Use this memory when making scoping recommendations. "
+        "For example, if the client frequently requests scope changes, prefer solutions with more customization headroom."
+    )
+
+
+async def stream_agent_reply(
+    agent: FoundryAgent, session: AgentSession, message: str
+) -> str:
+    print("Agent: ", end="", flush=True)
+    response_text_parts: list[str] = []
+
+    async for chunk in agent.run(message, session=session, stream=True):
+        if chunk.text:
+            print(chunk.text, end="", flush=True)
+            response_text_parts.append(chunk.text)
+
+    if not response_text_parts:
+        print("[No text response returned]", end="", flush=True)
+        return "[No text response returned]"
+
+    return "".join(response_text_parts)
+
+
+def infer_session_observations(transcript: list[str]) -> dict[str, list[str]]:
+    combined = " ".join(transcript).lower()
+    observations: dict[str, list[str]] = {
+        "past_projects": [],
+        "observed_patterns": [],
+        "preferred_tools": [],
+        "avoided_tools": [],
+        "session_observations": [],
+    }
+
+    if "scope change" in combined or "out of scope" in combined:
+        observations["observed_patterns"].append("frequently requests out-of-scope features")
+    if "budget" in combined or "cheap" in combined or "low cost" in combined:
+        observations["observed_patterns"].append("has tight budgets")
+    if "low-code" in combined or "low code" in combined:
+        observations["observed_patterns"].append("prefers low-code solutions")
+        observations["preferred_tools"].append("Copilot Studio")
+    if "custom" in combined or "flexib" in combined:
+        observations["preferred_tools"].append("Azure AI Foundry")
+    if "avoid copilot studio" in combined:
+        observations["avoided_tools"].append("Copilot Studio")
+    if "avoid azure ai foundry" in combined:
+        observations["avoided_tools"].append("Azure AI Foundry")
+    if "word" in combined:
+        observations["preferred_tools"].append("Work IQ Word tool")
+    if "mcp" in combined or "learn docs" in combined:
+        observations["preferred_tools"].append("Microsoft Learn MCP Server")
+
+    for line in transcript[-6:]:
+        cleaned = line.strip()
+        if cleaned:
+            observations["session_observations"].append(cleaned[:240])
+
+    return observations
+
+
 async def main() -> None:
     load_dotenv()
 
@@ -186,7 +260,102 @@ async def main() -> None:
                 allow_preview=True,
             ) as agent:
                 agent_session = await create_conversation_session(agent)
-                await chat_loop(agent, agent_session)
+                transcript: list[str] = []
+                client_name: Optional[str] = None
+
+                greeting = await stream_agent_reply(
+                    agent,
+                    agent_session,
+                    (
+                        "Start this scoping conversation with a short greeting and invite the user "
+                        "to describe what they want to build. Do not ask for client history yet."
+                    ),
+                )
+                transcript.append(f"Agent: {greeting}")
+                print()
+
+                first_user_message = input("\nYou: ").strip()
+                while not first_user_message:
+                    first_user_message = input("\nYou: ").strip()
+
+                transcript.append(f"User: {first_user_message}")
+                first_response = await stream_agent_reply(
+                    agent,
+                    agent_session,
+                    (
+                        f"User request: {first_user_message}\n"
+                        "Acknowledge the request briefly, then ask exactly: "
+                        "\"Is this for an existing client or a new one?\""
+                    ),
+                )
+                transcript.append(f"Agent: {first_response}")
+                print()
+
+                client_reply = input("\nYou: ").strip()
+                while not client_reply:
+                    client_reply = input("\nYou: ").strip()
+
+                transcript.append(f"User: {client_reply}")
+
+                if client_reply.strip().lower() == "new":
+                    client_name = "New client"
+                    profile = {
+                        "client_name": client_name,
+                        "found": False,
+                        "message": "No client profile found yet.",
+                    }
+                else:
+                    client_name = client_reply.strip()
+                    profile = get_client_profile(client_name)
+
+                print(
+                    "Loaded client memory:",
+                    "found existing profile" if profile.get("found") else "no existing profile",
+                )
+
+                memory_injection = (
+                    "Client memory context for this scoping conversation:\n"
+                    f"Client name: {client_name}\n"
+                    f"{format_profile_context(profile)}\n"
+                    "Continue the scoping conversation using this context."
+                )
+                transcript.append(f"System: {memory_injection}")
+
+                memory_response = await stream_agent_reply(
+                    agent,
+                    agent_session,
+                    memory_injection,
+                )
+                transcript.append(f"Agent: {memory_response}")
+                print()
+
+                while True:
+                    user_input = input("\nYou: ").strip()
+                    if not user_input:
+                        continue
+                    if user_input.lower() in {"exit", "quit"}:
+                        break
+
+                    transcript.append(f"User: {user_input}")
+                    response_text = await stream_agent_reply(agent, agent_session, user_input)
+                    transcript.append(f"Agent: {response_text}")
+                    print()
+
+                new_observations = infer_session_observations(transcript)
+                updated_profile = update_client_profile(
+                    client_name or "New client",
+                    past_projects=new_observations["past_projects"],
+                    observed_patterns=new_observations["observed_patterns"],
+                    preferred_tools=new_observations["preferred_tools"],
+                    avoided_tools=new_observations["avoided_tools"],
+                    session_observations=new_observations["session_observations"],
+                )
+
+                print(
+                    "\nSaved client memory for",
+                    updated_profile["client_name"],
+                    f"with {len(updated_profile.get('session_observations', []))} stored observations.",
+                )
     finally:
         await credential.close()
 

@@ -2,4 +2,6 @@ agent-framework-foundry==1.8.1
 aiohttp==3.13.2
 azure-ai-projects==2.2.0
 azure-identity==1.25.3
+fastapi==0.116.1
 python-dotenv==1.2.2
+uvicorn==0.35.0

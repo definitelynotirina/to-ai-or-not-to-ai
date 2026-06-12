@@ -1,0 +1,39 @@
+{
+  "clients": {
+    "contoso": {
+      "client_name": "Contoso",
+      "past_projects": [
+        "HR Self-Service Bot (2024) - Copilot Studio, went over scope",
+        "IT Helpdesk Agent (2024) - Copilot Studio, requested 3 additional integrations mid-project"
+      ],
+      "observed_patterns": [
+        "Frequently requests out-of-scope features after project kickoff",
+        "Underestimates integration complexity",
+        "Prefers demos over documentation",
+        "Decision makers change requirements after sign-off",
+        "frequently requests out-of-scope features",
+        "has tight budgets",
+        "prefers low-code solutions"
+      ],
+      "preferred_tools": [
+        "Microsoft Teams",
+        "SharePoint",
+        "Azure AI Foundry",
+        "Copilot Studio"
+      ],
+      "avoided_tools": [
+        "Power Apps"
+      ],
+      "session_observations": [
+        "Client: Contoso",
+        "Loaded profile: Known client profile:\n- Client name: Contoso\n- Past projects: HR Self-Service Bot (2024) - Copilot Studio, went over scope, IT Helpdesk Agent (2024) - Copilot Studio, requested 3 additional integrations mid-project\n- Observe",
+        "Agent: Great\u2014an HR agent in Teams for 50 employees, integrated with your AFAS system, with a developer and consultant on board and a \u20ac15K budget. Is this for an existing client or a new one?",
+        "User: Contoso",
+        "System: Client memory context for this scoping conversation:\nClient name: Contoso\nKnown client profile:\n- Client name: Contoso\n- Past projects: HR Self-Service Bot (2024) - Copilot Studio, went over scope, IT Helpdesk Agent (2024) - Copilot",
+        "Agent: Thanks for confirming this is for Contoso, an existing client. To scope the integration properly, could you describe which specific HR tasks or workflows (e.g., leave requests, payslip retrieval, onboarding queries) the agent should",
+        "User: we can start with FAQ Q&A from sharepoint documents and leave/vacation requests",
+        "Agent: Understood. To confirm, we\u2019ll start by:\n\n\u2022 Serving FAQ Q&A from your SharePoint-hosted HR docs  \n\u2022 Enabling employees to submit and check leave/vacation requests via AFAS  \n\nHere\u2019s the high-level approach I recommend:\n\n1. Agent Frame"
+      ]
+    }
+  }
+}
