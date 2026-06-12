@@ -116,7 +116,7 @@ A lightweight FastAPI + HTML web interface built for demo purposes, providing a 
 | Layer | Technology |
 |---|---|
 | Agent runtime | Azure AI Foundry |
-| Model | o4-mini (Sweden Central) |
+| Model | o4-mini  |
 | Knowledge - past projects | Foundry IQ File |
 | Knowledge - live docs | Foundry IQ MCP Server (Microsoft Learn) |
 | Document output | Work IQ Word -> OneDrive |
