@@ -15,11 +15,13 @@ Scope handles that conversation automatically. A manager describes their project
 
 ## Demo
 
-> **Screenshplaceholder:**> **Screenshot placeholder:**
+![Scope demo 1](./demo/Screenshot_14-6-2026_213321_127.0.0.1.jpeg)
 
-> **Screenshot placeholder:** Web UI showing a full scoping conversation - user describes an HR agent project, Scope responds with tool recommendations, cost estimate, and timeline.
+![Scope demo 2](./demo/Screenshot_14-6-2026_213331_127.0.0.1.jpeg)
 
-> **Screenshot placeholder:** Generated Word proposal document in OneDrive.
+![Scope demo 3](./demo/Screenshot_14-6-2026_21337_127.0.0.1.jpeg)
+
+- [Contoso_HR_Agent_Proposal.docx](./Contoso_HR_Agent_Proposal.docx)
 
 ---
 
