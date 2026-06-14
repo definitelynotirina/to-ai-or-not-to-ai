@@ -78,18 +78,12 @@ A curated dataset of 15 realistic Microsoft AI projects spanning HR agents, IT h
 
 When a manager asks "what did a similar project cost?" or "how long does a third-party integration typically take?", the agent retrieves from this dataset rather than guessing.
 
-> **Screenshot placeholder:** Foundry traces showing `kb-past-projects` firing with a citation from the dataset.
-
 **Microsoft Learn MCP Server**
 Connected to `https://learn.microsoft.com/api/mcp` - Microsoft's official documentation MCP server. The agent uses this to research current tool capabilities, pricing tiers, configuration constraints, and compatibility rules in real time.
-
-> **Screenshot placeholder:** Foundry traces showing `mcp_list_tools` and a Microsoft Learn docs citation in the response.
 
 ### Work IQ Word - Proposal Output
 
 At the end of a scoping conversation, the agent generates a structured Word document proposal and saves it directly to the manager's OneDrive via the Work IQ Word tool. The document includes the recommended tech stack, cost breakdown, timeline, team recommendations, and key risks.
-
-> **Screenshot placeholder:** Generated Word proposal document open in OneDrive showing project scope details.
 
 ### Microsoft Agent Framework - Custom Tooling
 
@@ -102,12 +96,8 @@ A persistent JSON store that tracks client profiles across sessions. Before a sc
 
 Example: if a client consistently requests out-of-scope features, the agent proactively recommends Azure AI Foundry over Copilot Studio to leave room for inevitable customization.
 
-> **Screenshot placeholder:** `client_memory.json` showing a populated Contoso profile with observed patterns and past projects.
-
 **Chat Interface (`app.py`)**
 A lightweight FastAPI + HTML web interface built for demo purposes, providing a clean visual alternative to the Foundry playground.
-
-> **Screenshot placeholder:** Web UI showing the Scope interface with a conversation in progress.
 
 ---
 
