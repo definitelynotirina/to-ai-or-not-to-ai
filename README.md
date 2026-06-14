@@ -15,9 +15,9 @@ Scope handles that conversation automatically. A manager describes their project
 
 ## Demo
 
-> **Screenshot placeholder:** Web UI showing a full scoping conversation - user describes an HR agent project, Scope responds with tool recommendations, cost estimate, and timeline.
+> **Screenshplaceholder:**> **Screenshot placeholder:**
 
-> **Screenshot placeholder:** Agent running in Microsoft 365 Copilot Chat under "Your agents."
+> **Screenshot placeholder:** Web UI showing a full scoping conversation - user describes an HR agent project, Scope responds with tool recommendations, cost estimate, and timeline.
 
 > **Screenshot placeholder:** Generated Word proposal document in OneDrive.
 
