@@ -139,18 +139,6 @@ pip install -r requirements.txt
 cp .env.example .env
 # Fill in your Foundry project endpoint and agent ID
 ```
-
-### Run
-
-```bash
-# Terminal interface
-python main.py
-
-# Web interface
-python app.py
-# Open http://localhost:8000
-```
-
 ---
 
 ## Hackathon Criteria
